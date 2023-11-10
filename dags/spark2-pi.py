@@ -34,26 +34,21 @@ default_args = {
     'max_active_runs': 1,
     'retries': 3
 }
-# [END default_args]
-
-# [START instantiate_dag]
-
-dag = DAG(
+WITH DAG(
     'spark_pi',
     start_date=days_ago(1),
     default_args=default_args,
-    schedule_interval=timedelta(days=1),
+    description='simple dag',
+    catchup=False,
     tags=['stica']
-)
-
-submit = SparkKubernetesOperator(
-    task_id='spark_transform_data',
-    namespace='spark-operator',
-    application_file='/kube/spark-pi.yaml',
-    kubernetes_conn_id='kubernetes_default',
-    do_xcom_push=True,
-)
-
-
-
-submit
+) as dag:
+   t1 = SparkKubernetesOperator(
+       task_id='n-spark-pi',
+       namespace='spark-operator',
+       trigger_rule="all_success",
+       depends_on_past=False,
+       application_file='/kube/spark-pi.yaml',
+       kubernetes_conn_id='kubernetes_default',
+       do_xcom_push=True,
+       dag=dag
+   )
