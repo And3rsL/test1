@@ -34,7 +34,7 @@ default_args = {
     'max_active_runs': 1,
     'retries': 3
 }
-WITH DAG(
+with DAG(
     'spark_pi',
     start_date=days_ago(1),
     default_args=default_args,
